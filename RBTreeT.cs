@@ -242,7 +242,7 @@
         /// <seealso cref="CopyTo(T[], int)"/>
         /// <exception cref="ArgumentNullException"><para>Raised if <paramref name="array"/> is null.</para></exception>
         /// <exception cref="ArgumentException"><para>Raised if <paramref name="array"/> is not an <see cref="Array"/> of <typeparamref name="T"/>.</para></exception>
-        public void CopyTo(Array array, int index)
+        void ICollection.CopyTo(Array array, int index)
         {
             if (array == null) throw new ArgumentNullException(nameof(array));
             else if (array is T[] a) CopyTo(a, index);
