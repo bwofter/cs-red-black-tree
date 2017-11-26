@@ -1,9 +1,11 @@
 ﻿namespace BWofter.Collections.Trees.Internals
 {
     using Enumerations;
+    using System;
     /// <summary><para>A class used to represent a node in a <see cref="RBTree{T}"/>.</para></summary>
     /// <typeparam name="T"><para>The type of the stored value.</para></typeparam>
     /// <seealso cref="RBTree{T}"/>
+    [Serializable]
     internal sealed class RBNode<T>
     {
         /// <summary><para>The color of the current node.</para></summary>

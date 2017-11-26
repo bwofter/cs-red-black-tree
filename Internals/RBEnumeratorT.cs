@@ -3,7 +3,7 @@
     using System.Collections;
     using System.Collections.Generic;
     //TODO: document this class. Or rewrite it. Whichever because it's pretty bad.
-    internal class RBEnumerator<T> : IEnumerator<T>
+    internal struct RBEnumerator<T> : IEnumerator<T>
     {
         private RBNode<T> CurrentNode { get; set; }
         internal RBTree<T> Tree { get; set; }

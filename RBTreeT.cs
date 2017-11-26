@@ -8,8 +8,9 @@
     using System.Diagnostics;
     /// <summary><para>An efficient tree structure used to store large sets of related data.</para></summary>
     /// <typeparam name="T"><para>The type of the values that are stored in the <see cref="RBTree{T}"/>.</para></typeparam>
+    [Serializable]
     [DebuggerDisplay("{Count}")]
-    public class RBTree<T> : ICollection<T>, IReadOnlyCollection<T>
+    public class RBTree<T> : ICollection<T>, IReadOnlyCollection<T>, IEnumerable<T>, ICollection, IEnumerable
     {
         /// <summary><para>The <see cref="RBTree{T}"/> comparer.</para></summary>
         private Comparer<T> Comparer { get; set; }
@@ -20,6 +21,10 @@
         /// <summary><para>The <see cref="RBTree{T}"/> root.</para></summary>
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         internal RBNode<T> Root { get; private set; }
+        /// <summary><para>Whether or not the <see cref="RBTree{T}"/> is thread-safe. This always returns false.</para></summary>
+        public bool IsSynchronized => false;
+        /// <summary><para>Returns an <see cref="object"/> exclusive to the instance for enforce thread safety.</para></summary>
+        public object SyncRoot { get; } = new object();
         /// <summary><para>Initializes the <see cref="RBTree{T}"/> comparer to <see cref="Comparer{T}.Default"/>.</para></summary>
         public RBTree() : this(Comparer<T>.Default) { }
         /// <summary><para>Initializes the <see cref="RBTree{T}"/> comparer to <paramref name="comparer"/>.</para></summary>
@@ -230,6 +235,18 @@
             {
                 return false;
             }
+        }
+        /// <summary><para>Copies the <see cref="RBTree{T}"/> to <paramref name="array"/>. This method calls <see cref="CopyTo(T[], int)"/>.</para></summary>
+        /// <param name="array"><para>The <see cref="Array"/> to copy to.</para></param>
+        /// <param name="index"><para>The index to start at.</para></param>
+        /// <seealso cref="CopyTo(T[], int)"/>
+        /// <exception cref="ArgumentNullException"><para>Raised if <paramref name="array"/> is null.</para></exception>
+        /// <exception cref="ArgumentException"><para>Raised if <paramref name="array"/> is not an <see cref="Array"/> of <typeparamref name="T"/>.</para></exception>
+        public void CopyTo(Array array, int index)
+        {
+            if (array == null) throw new ArgumentNullException(nameof(array));
+            else if (array is T[] a) CopyTo(a, index);
+            else throw new ArgumentException($"The parameter {nameof(array)} is not of type {nameof(Array)} {nameof(T)}.");
         }
     }
 }
