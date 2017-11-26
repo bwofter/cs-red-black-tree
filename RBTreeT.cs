@@ -55,7 +55,7 @@ namespace BWofter.Collections.Trees
             {
                 if (Root == null)
                 {
-                    ++Count;
+                    Count = 1;
                     Root = new RBNode<T> { Value = value, Tree = this };
                 }
                 else if (DoAdd(value))
@@ -202,17 +202,11 @@ namespace BWofter.Collections.Trees
                 }
                 else if (comparison < 0)
                 {
-                    if (comparable.Right == null)
-                        return false;
-                    else
-                        comparable = comparable.Right;
+                    comparable = comparable?.Right;
                 }
                 else
                 {
-                    if (comparable.Left == null)
-                        return false;
-                    else
-                        comparable = comparable.Left;
+                    comparable = comparable?.Left;
                 }
             }
             return false;
