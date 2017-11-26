@@ -111,9 +111,9 @@ namespace BWofter.Collections.Trees
                     if (comparison == 0)
                         return true;
                     else if (comparison < 0)
-                        comparable = comparable.Right;
-                    else if (comparison > 0)
-                        comparable = comparable.Left;
+                        comparable = comparable?.Right;
+                    else
+                        comparable = comparable?.Left;
                 }
             }
             return false;
