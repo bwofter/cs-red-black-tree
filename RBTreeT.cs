@@ -28,6 +28,7 @@
         public RBTree(Comparer<T> comparer) => Comparer = comparer ?? throw new ArgumentNullException(nameof(comparer));
         /// <summary><para>Adds a value not already in the <see cref="RBTree{T}"/> to the <see cref="RBTree{T}"/>.</para></summary>
         /// <param name="value"><para>The value to add.</para></param>
+        /// <exception cref="InvalidOperationException"><para>Raised if <see cref="IsReadOnly"/> is set to true.</para></exception>
         public void Add(T value)
         {
             if (!IsReadOnly)
@@ -43,23 +44,21 @@
                     FixRoot();
                 }
             }
+            else
+            {
+                throw new InvalidOperationException($"The {nameof(RBTree<T>)} cannot be modified.");
+            }
         }
         /// <summary><para>Returns a new <see cref="RBTree{T}"/> with <see cref="IsReadOnly"/> set to true. This will clone all nodes from the original tree to the new tree.</para></summary>
         /// <returns><para>A new <see cref="RBTree{T}"/> with <see cref="IsReadOnly"/> set to true.</para></returns>
         public RBTree<T> AsReadOnly()
         {
-            if (IsReadOnly)
-            {
-                return this;
-            }
-            else
-            {
-                RBTree<T> newTree = new RBTree<T> { Comparer = Comparer, Count = Count, IsReadOnly = true };
-                newTree.Root = Root?.Clone(newTree);
-                return newTree;
-            }
+            RBTree<T> newTree = new RBTree<T> { Comparer = Comparer, Count = Count, IsReadOnly = true };
+            newTree.Root = Root?.Clone(newTree);
+            return newTree;
         }
         /// <summary><para>Removes all values in the <see cref="RBTree{T}"/>.</para></summary>
+        /// <exception cref="InvalidOperationException"><para>Raised if <see cref="IsReadOnly"/> is set to true.</para></exception>
         public void Clear()
         {
             if (!IsReadOnly)
@@ -67,12 +66,17 @@
                 Count = 0;
                 Root = null;
             }
+            else
+            {
+                throw new InvalidOperationException($"The {nameof(RBTree<T>)} cannot be modified.");
+            }
         }
         /// <summary><para>Compares <paramref name="x"/> to <paramref name="y"/> using <see cref="Comparer"/>.</para></summary>
         /// <param name="x"><para>The left value.</para></param>
         /// <param name="y"><para>The right value.</para></param>
         /// <returns><para>0 if <paramref name="x"/> and <paramref name="y"/> are the same, -1 if <paramref name="x"/> is less than <paramref name="y"/>, 1 otherwise.</para></returns>
-        internal int Compare(T x, T y) => Comparer.Compare(x, y);
+        /// <exception cref="InvalidOperationException"><para>Raised if the <see cref="RBTree{T}"/>comparer has disappeared. This shouldn't ever happen, but is taken into account just in case.</para></exception>
+        internal int Compare(T x, T y) => Comparer?.Compare(x, y) ?? throw new InvalidOperationException("Comparer has magically disappeared!");
         /// <summary><para>Determines if the <see cref="RBTree{T}"/> contains <paramref name="value"/>.</para></summary>
         /// <param name="value"><para>The value to check.</para></param>
         /// <returns><para>True if the <see cref="RBTree{T}"/> contains <paramref name="value"/>, false otherwise.</para></returns>
@@ -97,7 +101,14 @@
         /// <summary><para>Copies the values of the <see cref="RBTree{T}"/> into <paramref name="array"/>, putting them at <paramref name="index"/>.</para></summary>
         /// <param name="array"><para>The array to copy to.</para></param>
         /// <param name="index"><para>The position to copy to.</para></param>
-        public void CopyTo(T[] array, int index) { foreach (T v in this) array[index++] = v; }
+        /// <exception cref="ArgumentNullException"><para>Raised if <paramref name="array"/> is null.</para></exception>
+        /// <exception cref="ArgumentOutOfRangeException"><para>Raised if <paramref name="index"/> is null or <paramref name="index"/> + <see cref="Count"/> is greater than or equal to the length of <paramref name="array"/>.</para></exception>
+        public void CopyTo(T[] array, int index)
+        {
+            if (array == null) throw new ArgumentNullException(nameof(array));
+            else if (index < 0 || (index + Count) >= array.Length) throw new ArgumentOutOfRangeException(nameof(index));
+            foreach (T v in this) array[index++] = v;
+        }
         /// <summary><para>Attempts to add the value to the <see cref="RBTree{T}"/>.</para></summary>
         /// <param name="value"><para>The value to add.</para></param>
         /// <returns><para>True on add, false otherwise.</para></returns>
@@ -202,6 +213,7 @@
         /// <summary><para>Removes the value <paramref name="value"/> from the <see cref="RBTree{T}"/>, returning whether or not the removal was successful.</para></summary>
         /// <param name="value"><para>The value to remove.</para></param>
         /// <returns><para>True if the <see cref="RBTree{T}"/> removed <paramref name="value"/>, false otherwise.</para></returns>
+        /// <exception cref="InvalidOperationException"><para>Raised if <see cref="IsReadOnly"/> is set to true.</para></exception>
         public bool Remove(T value)
         {
             if (!IsReadOnly && Root != null && DoRemove(value))
@@ -209,6 +221,10 @@
                 --Count;
                 FixRoot();
                 return true;
+            }
+            else if (IsReadOnly)
+            {
+                throw new InvalidOperationException($"The {nameof(RBTree<T>)} cannot be modified.");
             }
             else
             {
